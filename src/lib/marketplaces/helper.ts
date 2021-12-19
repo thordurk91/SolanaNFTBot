@@ -30,6 +30,7 @@ export function getTransfersFromInnerInstructions(
     });
 }
 
+
 export function parseNFTSaleOnTx(
   txResp: ParsedConfirmedTransaction,
   marketplace: Marketplace,

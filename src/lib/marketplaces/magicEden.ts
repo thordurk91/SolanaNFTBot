@@ -7,7 +7,7 @@ const magicEden: Marketplace = {
   itemURL: (token: String) => `https://magiceden.io/item-details/${token}`,
   parseNFTSale(txResp): NFTSale | null {
     return parseNFTSaleOnTx(txResp, this, 0);
-  },
+  }
 };
 
 export default magicEden;

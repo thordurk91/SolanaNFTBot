@@ -22,7 +22,10 @@
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "ts-node": "^10.4.0"
+    "node": "^17.2.0",
+    "ts-node": "^10.4.0",
+    "twitter": "^1.7.1",
+    "yarn": "^1.22.17"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
