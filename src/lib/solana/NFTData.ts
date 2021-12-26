@@ -5,6 +5,12 @@ import { Connection } from "@solana/web3.js";
 export default interface NFTData {
   name: string;
   image: string;
+  attributes: Array<AttributesObject>;
+}
+
+interface AttributesObject {
+  trait_type: string;
+  value: string;
 }
 
 export async function fetchNFTData(

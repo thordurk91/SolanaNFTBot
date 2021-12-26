@@ -28,3 +28,11 @@ export interface NFTSale {
   getPriceInLamport: () => number;
   getPriceInSOL: () => number;
 }
+
+export interface NFTListing {
+  price: string;
+  mint: string;
+  img: string;
+  title: string;
+  txType: string;
+}

@@ -7,6 +7,8 @@ import { getStatus } from "lib/discord/notifyDiscordSale";
 import { loadConfig } from "config";
 import { Worker } from "workers/types";
 import notifyNFTSalesWorker from "workers/notifyNFTSalesWorker";
+import notifyNFTListingWorker from "workers/notifyNFTListingWorker"
+import { CommandInteractionOptionResolver } from "discord.js";
 
 const port = process.env.PORT || 4000;
 
@@ -52,8 +54,22 @@ const port = process.env.PORT || 4000;
         mintAddress: s.mintAddress,
       });
     });
-
-    initWorkers(workers);
+    const listingWorkers: Worker[] = config.subscriptions.map((s) => {
+      return notifyNFTListingWorker(discordClient, web3Conn, {
+        discordChannelId: s.discordChannelId,
+        mintAddress: s.mintAddress,
+        discordListingChannelId: s.discordListingChannelId,
+        collectionSymbol: s.collectionSymbol,
+      });
+    });
+    if(config.subscriptions.length && ( config.subscriptions[0].salesOnly == 'True' || config.subscriptions[0].salesAndListingsByCollectionId == 'True')){
+      console.log('running sales mode')
+      initWorkers(workers);
+    }
+    if(config.subscriptions.length && ( config.subscriptions[0].listingsOnly == 'True' || config.subscriptions[0].salesAndListingsByCollectionId == 'True')){
+      console.log('running listings mode')
+      initWorkers(listingWorkers)
+    }
   } catch (e) {
     console.error(e);
     process.exit(1);

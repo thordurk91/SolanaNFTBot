@@ -40,25 +40,8 @@ export default function newWorker(
         return;
       }
 
-      await axios.get(
-        'https://api-mainnet.magiceden.io/rpc/getGlobalActivitiesByQuery?q=%7B%22%24match%22%3A%7B%22collection_symbol%22%3A%220xdrip_banners%22%7D%2C%22%24sort%22%3A%7B%22blockTime%22%3A-1%7D%2C%22%24skip%22%3A0%7D')
-        .then
-        ((response: any) => {
-            //console.log(response.data)
-            const data = response.data.results
-            //console.log(data.length);
-            for(var i = 0; i < data.length; i++){
-              //console.log(data[i].blockTime)
-              //console.log(new Date(data[i].blockTime * 1000), ' > ', lastNotified)
-              if(new Date(data[i].blockTime * 1000) > lastNotified){
-                if(data[i].txType == "initializeEscrow" ) lastNotified = new Date(data[i].blockTime * 1000);
-                console.log('item is new!', lastNotified)
-                //console.log(data[i])
-                notifyDiscordListing(discordClient, channel, data[i]);
-              } 
-            }
-        });
-        /*
+      
+      
       await fetchWeb3Transactions(web3Conn, project.mintAddress, {
         limit: 10,
         async onTransaction(tx) {
@@ -84,7 +67,6 @@ export default function newWorker(
           nftSale.nftData = nftData;
 
           await notifyDiscordSale(discordClient, channel, nftSale);
-          //Notify discord pending
           //await notifyTwitterSale(nftSale);
 
           if (nftSale.soldAt > lastNotified) {
@@ -92,7 +74,7 @@ export default function newWorker(
           }
         },
       });
-      */
+      
       notifyAfter = lastNotified;
     },
   };
