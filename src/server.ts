@@ -8,7 +8,8 @@ import { loadConfig } from "config";
 import { Worker } from "workers/types";
 import notifyNFTSalesWorker from "workers/notifyNFTSalesWorker";
 import notifyNFTListingWorker from "workers/notifyNFTListingWorker"
-import { CommandInteractionOptionResolver } from "discord.js";
+import { parseNFTSale } from "./lib/marketplaces";
+import { ParsedConfirmedTransaction } from "@solana/web3.js";
 
 const port = process.env.PORT || 4000;
 
@@ -19,6 +20,8 @@ const port = process.env.PORT || 4000;
       throw result.error;
     }
     const config = loadConfig();
+
+    const web3Conn = newConnection();
 
     const server = express();
     server.get("/", (req, res) => {
@@ -38,6 +41,35 @@ const port = process.env.PORT || 4000;
       `);
     });
 
+    server.get("/parse-sale-tx", async (req, res) => {
+      const signature = (req.query["signature"] as string) || "";
+      if (!signature) {
+        res.send(`no signature in query param`);
+        return;
+      }
+
+      let tx: ParsedConfirmedTransaction | null = null;
+      try {
+        tx = await web3Conn.getParsedConfirmedTransaction(signature);
+      } catch (e) {
+        console.log(e);
+        res.send(`Get transaction failed, check logs for error.`);
+        return;
+      }
+      if (!tx) {
+        res.send(`No transaction found for ${signature}`);
+        return;
+      }
+      const nftSale = parseNFTSale(tx);
+      if (!nftSale) {
+        res.send(
+          `No NFT Sale detected for tx: ${signature}\n${JSON.stringify(tx)}`
+        );
+        return;
+      }
+      res.send(`NFT Sales parsed: \n${JSON.stringify(nftSale)}`);
+    });
+
     server.listen(port, (err?: any) => {
       if (err) throw err;
       console.log(
@@ -46,7 +78,6 @@ const port = process.env.PORT || 4000;
     });
 
     const discordClient = await initDiscordClient();
-    const web3Conn = newConnection();
 
     const workers: Worker[] = config.subscriptions.map((s) => {
       return notifyNFTSalesWorker(discordClient, web3Conn, {

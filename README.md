@@ -20,32 +20,47 @@ If you find this project useful, please support us by give Milktoast a shoutout 
 ## Running using docker
 
 ### Requirement
-* [docker](https://www.docker.com/products/docker-desktop) >= v20.10
+* [Docker](https://www.docker.com/products/docker-desktop) >= v20.10
+  * If you're new to Docker, we recommend going through their [get started page](https://docs.docker.com/get-started/) to gain a basic understanding of Docker before moving forward.
+* A Solana RPC node/server - This is needed so the bot know where to call to fetch solana transactions.
+Here are some potential routes to get a node:
+  * https://quicknode.com/
+  * [Run your own](https://medium.com/@MisterKevin_js/how-to-run-your-own-solana-rpc-endpoint-on-figments-datahub-e9ca881bebb7)
+
+
 
 ### Instructions
 
 #### Run bot locally using docker in the terminal
 
+If you're new to docker, before starting I recommend 
+
 Run the following command with your own secrets replaced with your own configuration:
 
 ```
-docker run --name nftbot -d -p 4000:4000 -e DISCORD_BOT_TOKEN=YOURDISCORDTOKEN -e SUBSCRIPTION_DISCORD_CHANNEL_ID=YOURCHANNELID -e SUBSCRIPTION_MINT_ADDRESS=YOURMINTADDRESS milktoastlab/solananftbot
+docker run --name nftbot -d -p 4000:4000 -e SOLANA_RPC=YOURRPCURL -e DISCORD_BOT_TOKEN=YOURDISCORDTOKEN -e SUBSCRIPTION_DISCORD_CHANNEL_ID=YOURCHANNELID -e SUBSCRIPTION_MINT_ADDRESS=YOURMINTADDRESS milktoastlab/solananftbot
 ```
 Note: The command above is tested in linux/unix env only. You may have a different experience in Windows.
 Please check the [documentation on how to run docker command in windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/run-your-first-container) if you need any help.
+
+View logs
+```
+docker logs ntfbot
+```
+
 
 Alternatively, you can run it using docker-compose:
 
 Update `.env` with your secret and run
 ```
-docker-compose up bot
+docker-compose up -d bot
 ```
 
 See [here](#configurable-environments) for more details on environment variables
 
 View logs
 ```
-docker logs ntfbot
+docker-compose logs bot
 ```
 
 ## Running in development
@@ -74,8 +89,8 @@ yarn dev
 Here are a list of environments you need to configure before running the NFT bot.
 
 ```sh
-# Replace this with your RPC
-SOLANA_RPC=https://explorer-api.mainnet-beta.solana.com/
+# RPC node url
+SOLANA_RPC=
 # Discord bot secret
 DISCORD_BOT_TOKEN=
 # The discord channel to notify
@@ -108,10 +123,7 @@ https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User
 
 #### SUBSCRIPTION_MINT_ADDRESS
 This is the address that you want the Solana NFT bot to watch for notifications.
-Ideally, it's the "Update Authority" address.
-
-<img width="587" alt="Screen Shot 2021-10-31 at 9 30 56 am" src="https://user-images.githubusercontent.com/90617759/139560515-efd2f584-8f98-4337-a9ad-704b18581b22.png">
-OR one of the creator addresses:
+It needs to be one of the creator addresses:
 <img width="324" alt="Screen Shot 2021-11-12 at 6 16 31 pm" src="https://user-images.githubusercontent.com/90617759/141426468-fcf7c522-4480-4a4e-b1e9-c0cbed3f4f10.png">
 
 _Note: Avoid personal addresses because it could detect unwanted sales._
