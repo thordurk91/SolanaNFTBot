@@ -24,11 +24,10 @@ export default async function notifyDiscordListing(
     }
   
     const nftData = nftListing;
-
-    if(nftData.txType != "initializeEscrow"){
+    if(nftData.type != "list"){
         return;
     }
-    let price = 0
+    let price = parseFloat(nftData.price)
     let NFTtitle = ""
     let category = ""
     let type = ""
@@ -36,16 +35,18 @@ export default async function notifyDiscordListing(
     let FieldObject = []
     let attributes = [{"trait_type": "string", "value": "value"}] //dirty way to get matching expected array of attributes
 
-    await axios.get(`https://api-mainnet.magiceden.io/rpc/getNFTByMintAddress/${nftListing.mint}`)
+    await axios.get(`https://api-mainnet.magiceden.dev/v2/tokens/${nftListing.tokenMint}`)
     .then((response:any) =>{
-        const data = response.data.results
-        if(data.price !== undefined) price = data.price
-        if(data.title !== undefined) NFTtitle = data.title
+        const data = response.data
+        //console.log(data)
+        //if(data.price !== undefined) price = data.price
+        if(data.name !== undefined) NFTtitle = data.name
         if(data.attributes[0]?.value !== undefined) category = data.attributes[0].value
         if(data.attributes[1]?.value !== undefined) type = data.attributes[1].value
         if(data.attributes.length) attributes = data.attributes;
-        if(data.img !== undefined) NFTimg = data.img
+        if(data.image !== undefined) NFTimg = data.image
     });
+    console.log(price, NFTtitle, category, type, attributes, NFTimg)
     if(price <= 0){
         return;
     }
@@ -76,7 +77,7 @@ export default async function notifyDiscordListing(
       color: "#0099ff",
       title: NFTtitle + ' was just listed!',
       fields: FieldObject,
-      url: "https://www.magiceden.io/item-details/" + (nftListing.mint),
+      url: "https://www.magiceden.io/item-details/" + (nftListing.tokenMint),
       image:{
         url: NFTimg,
       },

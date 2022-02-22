@@ -50,17 +50,23 @@ export default function newWorker(
           console.warn("listingChannel must be a TextChannel");
           return;
         }
-      
+      const config = {
+        method: 'get',
+        url: 'api-mainnet.magiceden.dev/v2/collections/:'+ collection_symbol + '/listings?offset=0&limit=20',
+        headers: { }
+      }
+      //`https://api-mainnet.magiceden.io/rpc/getGlobalActivitiesByQuery?q={"$match":{"collection_symbol":"${collection_symbol}"},"$sort":{"blockTime":-1},"$skip":0}`)
+        
       await axios.get(
-        `https://api-mainnet.magiceden.io/rpc/getGlobalActivitiesByQuery?q={"$match":{"collection_symbol":"${collection_symbol}"},"$sort":{"blockTime":-1},"$skip":0}`)
+        `https://api-mainnet.magiceden.dev/v2/collections/${collection_symbol}/activities?offset=0&limit=20`)
         .then
         ((response: any) => {
-            const data = response.data.results
+            const data = response.data;
             let foundNew = false
             let recent = []
             for(var i = 0; i < data.length; i++){
-              if(new Date(data[i].blockTime * 1000) > lastNotified){
-                if(data[i].txType == "initializeEscrow" ){
+                if(data[i].type == "list" ){
+                  if(new Date(data[i].blockTime * 1000) > lastNotified){
                   foundNew = true
                   recent.push(new Date(data[i].blockTime * 1000))
                   notifyDiscordListing(discordClient, listingChannel, data[i]);
@@ -70,6 +76,8 @@ export default function newWorker(
             if(foundNew && recent.length){
               lastNotified = recent[0]
             }
+        }).catch(function(e){
+          console.log('error fetching', e)
         });
       }
       notifyAfter = lastNotified;

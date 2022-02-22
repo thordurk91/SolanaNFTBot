@@ -31,8 +31,8 @@ export interface NFTSale {
 
 export interface NFTListing {
   price: string;
-  mint: string;
+  tokenMint: string;
   img: string;
-  title: string;
-  txType: string;
+  seller: string,
+  type: string;
 }
